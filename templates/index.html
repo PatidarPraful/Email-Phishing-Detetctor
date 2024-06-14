@@ -1,0 +1,225 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>Email Phishing Predictor</title>-->
+<!--    <style>-->
+<!--        body {-->
+<!--            display: flex;-->
+<!--            justify-content: center;-->
+<!--            align-items: center;-->
+<!--            flex-direction: column;-->
+<!--            height: 100vh;-->
+<!--            margin: 0;-->
+<!--            background-color: #fff9c4; /* light yellow */-->
+<!--            font-family: Arial, sans-serif;-->
+<!--        }-->
+
+<!--        h1 {-->
+<!--            color: #333;-->
+<!--        }-->
+
+<!--        textarea {-->
+<!--            width: 80%;-->
+<!--            max-width: 600px;-->
+<!--            margin-bottom: 20px;-->
+<!--            padding: 10px;-->
+<!--            border: 2px solid #ccc;-->
+<!--            border-radius: 5px;-->
+<!--            font-size: 16px;-->
+<!--        }-->
+
+<!--        button {-->
+<!--            padding: 10px 20px;-->
+<!--            background-color: #007BFF;-->
+<!--            color: white;-->
+<!--            border: none;-->
+<!--            border-radius: 5px;-->
+<!--            font-size: 16px;-->
+<!--            cursor: pointer;-->
+<!--            transition: background-color 0.3s ease;-->
+<!--        }-->
+
+<!--        button:hover {-->
+<!--            background-color: #0056b3;-->
+<!--        }-->
+
+<!--        #result {-->
+<!--            margin-top: 20px;-->
+<!--            font-size: 18px;-->
+<!--            font-weight: bold;-->
+<!--        }-->
+<!--    </style>-->
+<!--    <script>-->
+<!--        function predictPhishing() {-->
+<!--            const emailText = document.getElementById('emailText').value;-->
+<!--            fetch('/predict', {-->
+<!--                method: 'POST',-->
+<!--                headers: {-->
+<!--                    'Content-Type': 'application/json'-->
+<!--                },-->
+<!--                body: JSON.stringify({ email_text: emailText })-->
+<!--            })-->
+<!--                .then(response => response.json())-->
+<!--                .then(data => {-->
+<!--                    const result = data.prediction === 1 ? "PHISHED" : "NOT PHISHED";-->
+<!--                    document.getElementById('result').innerText = `The email is predicted to be ${result}.`;-->
+<!--                })-->
+<!--                .catch(error => console.error('Error:', error));-->
+<!--        }-->
+<!--    </script>-->
+<!--</head>-->
+
+<!--<body>-->
+<!--    <h1>Email Phishing Predictor</h1>-->
+<!--    <textarea id="emailText" rows="10" cols="50" placeholder="Enter Email Text"></textarea><br>-->
+<!--    <button onclick="predictPhishing()">Predict Phishing</button>-->
+<!--    <p id="result"></p>-->
+<!--</body>-->
+
+<!--</html>-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Phishing Predictor</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            background-color: #FDF5E6;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            color: #333;
+            font-family : Serif;
+            font-size : 40px;
+
+        }
+
+        textarea {
+            width: 80%;
+            max-width: 600px;
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #dc3545; /* red */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #a71d2a;
+        }
+
+        button:disabled {
+            background-color: #e6a6a6;
+            cursor: not-allowed;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        #error {
+            color: red;
+            font-size: 16px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #dc3545;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+    <script>
+        function predictPhishing() {
+            const emailText = document.getElementById('emailText').value;
+            const resultElement = document.getElementById('result');
+            const errorElement = document.getElementById('error');
+            const button = document.querySelector('button');
+            const spinner = document.createElement('div');
+
+            resultElement.innerText = '';
+            errorElement.innerText = '';
+            button.disabled = true;
+            spinner.classList.add('spinner');
+            button.appendChild(spinner);
+
+            if (!emailText.trim()) {
+                errorElement.innerText = 'Email text cannot be empty.';
+                button.disabled = false;
+                spinner.remove();
+                return;
+            }
+
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email_text: emailText })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const result = data.prediction === 1 ? "PHISHED" : "NOT PHISHED";
+                    resultElement.innerText = `The email is predicted to be ${result}.`;
+                    resultElement.style.color = data.prediction === 1 ? 'red' : 'green';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    errorElement.innerText = 'Failed to predict. Please try again later.';
+                })
+                .finally(() => {
+                    button.disabled = false;
+                    spinner.remove();
+                    document.getElementById('emailText').value = ''; // Clear the input field
+                });
+        }
+    </script>
+</head>
+
+<body>
+    <h1>Email Phishing Predictor</h1>
+    <textarea id="emailText" rows="10" cols="50" placeholder="Enter Email Text"></textarea><br>
+    <button onclick="predictPhishing()">Predict Phishing</button>
+    <p id="result"></p>
+    <p id="error"></p>
+</body>
+
+</html>

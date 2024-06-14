@@ -1,7 +1,6 @@
 Flask
 Gunicorn
 Pandas
-Re
 Urllib
 Sklearn
 Csv

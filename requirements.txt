@@ -1,6 +1,6 @@
 Flask
 Gunicorn
 Pandas
-Urllib
-Sklearn
-Csv
+urllib
+sklearn
+csv
